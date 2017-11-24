@@ -135,10 +135,26 @@ namespace HasamiShogi
                         bool hovaÜresMező = false;
                         if (megfelelőAdatok)
                             hovaÜresMező = tábla.Mátrix[iHovaBetű, iHovaSzám] == '-';
+                        bool csakEgyetLépne = Math.Abs(iHonnanBetű - iHovaBetű) <= 1 && Math.Abs(iHonnanSzám - iHovaSzám) <= 1;
+                        bool ugranaEgyet = false;
+
+                        for (int j = 0; j < 2; j++)
+                        {
+                            ugranaEgyet =
+                                (Math.Abs(iHonnanBetű - iHovaBetű) == 2 || Math.Abs(iHonnanSzám - iHovaSzám) == 2)
+                                &&
+                                (Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám - 1 }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám + 1 }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű - 1, iHovaSzám }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű + 1, iHovaSzám }) != null)
+                                &&
+                                Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám }) == null;
+                        }
+                        
                         bool nemLépneÁtlósan = iHonnanBetű == iHovaBetű || iHonnanSzám == iHovaSzám;
 
                         if (megfelelőAdatok && honnanHovaNemEgyezik
-                            && hovaÜresMező && nemLépneÁtlósan)
+                            && nemLépneÁtlósan && ((csakEgyetLépne && hovaÜresMező) || ugranaEgyet))
                         {
                             int[] hova = new int[2];
                             hova[0] = iHovaBetű;
