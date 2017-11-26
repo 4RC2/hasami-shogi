@@ -7,27 +7,32 @@ using System.Threading;
 
 namespace HasamiShogi
 {
-    class Program
+    class Program // A program alapvető működését kezelő osztály
     {
+        // Tábla és adatmezői;
         public static Tábla tábla = new Tábla();
         static char[] betűk = tábla.Betűk;
         static char[] számok = tábla.Számok;
 
+        // Játékosok
         public static Játékos[] játékosok = new Játékos[2];
         static Játékos aktuálisJátékos;
         static bool másikJátékos = Convert.ToBoolean(0);
 
+        // Játék állapotát jellemző logikai változók
         static bool lépett = false;
         static bool feladta = false;
         static bool vége = false;
         public static bool betöltött = false;
 
+        // Hibalehetőségek
         static bool hiba_bevitel = false;
         static bool hiba_mentés = false;
         static bool hiba_betöltés = false;
 
         static void Main(string[] args)
         {
+            // Tábla rajzolása, üzenetek kiírása
             Console.Title = "Hasami Shogi";
             tábla.Rajzol();
             Segítség();
@@ -39,17 +44,17 @@ namespace HasamiShogi
             játékosok[0] = new Játékos(1);
             játékosok[1] = new Játékos(2);
 
-            while (!vége)
+            while (!vége) // Fő játékciklus: Addig fut, amíg valamelyik játékos meg nem nyeri, vagy fel nem adja a játékot
             {
-                aktuálisJátékos = játékosok[Convert.ToInt32(másikJátékos)];
+                aktuálisJátékos = játékosok[Convert.ToInt32(másikJátékos)]; // Aktuális játékos cseréje
                 ParancsBevitel();
-                if (!hiba_bevitel && (lépett || betöltött))
+                if (!hiba_bevitel && (lépett || betöltött)) // Játékos cseréjéhez szükséges feltételek vizsgálata
                     másikJátékos = !másikJátékos;
-                if (játékosok[0].Pont >= 8 || játékosok[1].Pont >= 8)
+                if (játékosok[0].Pont >= 8 || játékosok[1].Pont >= 8) // Annak vizsgálata, hogy nyert-e valamelyik Játékos
                     vége = true;
             }
 
-            if (!feladta)
+            if (!feladta) // Győzelmi üzenet kiírása
             {
                 if (játékosok[0].Pont > játékosok[1].Pont)
                 {
@@ -68,16 +73,18 @@ namespace HasamiShogi
             Console.ReadKey();
         }
 
-        static void ParancsBevitel()
+        static void ParancsBevitel() // Felhasználó által bevitt szöveges parancsokat kiértékelő metódus
         {
             do
             {
+                // Logikai változók alaphelyzetbe állítása
                 hiba_bevitel = false;
                 hiba_mentés = false;
                 hiba_betöltés = false;
                 lépett = false;
                 betöltött = false;
 
+                // Felhasználói bevitel fogadása, Tábla rajzolása
                 Console.Write("(");
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.Write(Convert.ToInt32(másikJátékos) + 1);
@@ -90,7 +97,7 @@ namespace HasamiShogi
                 Console.Clear();
                 tábla.Rajzol();
 
-                if (bemenet.ToLower().StartsWith("lép"))
+                if (bemenet.ToLower().StartsWith("lép")) // "lép" parancs argumentumainak kiértékelése
                 {
                     if (bemenet.Length == 9)
                     {
@@ -102,7 +109,7 @@ namespace HasamiShogi
                         int iHonnanSzám = -1;
 
                         int i = 0;
-                        while (i < 9 && (iHonnanBetű == -1 || iHonnanSzám == -1))
+                        while (i < 9 && (iHonnanBetű == -1 || iHonnanSzám == -1)) // Megfelelő indexek hozzárendelése a "honnan" argumentum betűjéhez, illetve számához 
                         {
                             if (honnanBetű.ToString().ToUpper() == betűk[i].ToString())
                                 iHonnanBetű = i;
@@ -111,6 +118,7 @@ namespace HasamiShogi
                             i++;
                         }
 
+                        // "honnan" pozíció meghatározása (forráspozíció)
                         int[] honnan = new int[2];
                         honnan[0] = iHonnanBetű;
                         honnan[1] = iHonnanSzám;
@@ -121,7 +129,7 @@ namespace HasamiShogi
                         int iHovaSzám = -1;
 
                         i = 0;
-                        while (i < 9 && (iHovaBetű == -1 || iHovaSzám == -1))
+                        while (i < 9 && (iHovaBetű == -1 || iHovaSzám == -1)) // Megfelelő indexek hozzárendelése a "hova" argumentum betűjéhez, illetve számához 
                         {
                             if (hovaBetű.ToString().ToUpper() == betűk[i].ToString())
                                 iHovaBetű = i;
@@ -130,26 +138,46 @@ namespace HasamiShogi
                             i++;
                         }
 
+                        // Lépés végrehajtásához szükséges feltételek
                         bool megfelelőAdatok = iHonnanBetű != -1 && iHonnanSzám != -1 && iHovaBetű != -1 && iHovaSzám != -1;
                         bool honnanHovaNemEgyezik = String.Concat(részlet[0], részlet[1]) != String.Concat(részlet[3], részlet[4]);
                         bool hovaÜresMező = false;
                         if (megfelelőAdatok)
                             hovaÜresMező = tábla.Mátrix[iHovaBetű, iHovaSzám] == '-';
+                        bool csakEgyetLépne = Math.Abs(iHonnanBetű - iHovaBetű) <= 1 && Math.Abs(iHonnanSzám - iHovaSzám) <= 1;
+                        bool ugranaEgyet = false;
+
+                        for (int j = 0; j < 2; j++) // Ugrás szándékának vizsgálata
+                        {
+                            ugranaEgyet =
+                                (Math.Abs(iHonnanBetű - iHovaBetű) == 2 || Math.Abs(iHonnanSzám - iHovaSzám) == 2)
+                                &&
+                                // Célpozíció körüli mezők valamelyikén tartózkodik Figura?
+                                (Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám - 1 }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám + 1 }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű - 1, iHovaSzám }) != null
+                                || Figura.Get(játékosok[j], new int[] { iHovaBetű + 1, iHovaSzám }) != null)
+                                &&
+                                // Üres a célpozíció?
+                                Figura.Get(játékosok[j], new int[] { iHovaBetű, iHovaSzám }) == null;
+                        }
+                        
                         bool nemLépneÁtlósan = iHonnanBetű == iHovaBetű || iHonnanSzám == iHovaSzám;
 
                         if (megfelelőAdatok && honnanHovaNemEgyezik
-                            && hovaÜresMező && nemLépneÁtlósan)
+                            && nemLépneÁtlósan && ((csakEgyetLépne && hovaÜresMező) || ugranaEgyet)) // Lépés végrehajtásához szükséges feltételek vizsgálata
                         {
+                            // "hova" pozíció meghatározása (célpozíció)
                             int[] hova = new int[2];
                             hova[0] = iHovaBetű;
                             hova[1] = iHovaSzám;
 
                             try
                             {
-                                Figura.Get(aktuálisJátékos, honnan).Lép(honnan, hova);
+                                Figura.Get(aktuálisJátékos, honnan).Lép(honnan, hova); // Lépés végrehajtása: Játékos mozgatása forráspozícióból célpozícióba
                                 lépett = true;
                             }
-                            catch (NullReferenceException)
+                            catch (NullReferenceException) // Annak kezelése, ha nem tartózkodik (saját) Figura a forráspozíción
                             {
                                 hiba_bevitel = true;
                                 Console.ForegroundColor = ConsoleColor.Red;
@@ -157,7 +185,7 @@ namespace HasamiShogi
                                 Console.ResetColor();
                             }
                         }
-                        else
+                        else // Parancs szintaktikai hibáinak kezelése
                         {
                             hiba_bevitel = true;
                             Console.ForegroundColor = ConsoleColor.Red;
@@ -165,7 +193,7 @@ namespace HasamiShogi
                             Console.ResetColor();
                         }
                     }
-                    else
+                    else // Parancs szintaktikai hibáinak kezelése
                     {
                         hiba_bevitel = true;
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -173,19 +201,19 @@ namespace HasamiShogi
                         Console.ResetColor();
                     }
                 }
-                else if (bemenet.ToLower() == "felad")
+                else if (bemenet.ToLower() == "felad") // "felad" parancs kezelése
                     Feladás();
-                else if (bemenet.ToLower() == "fájlok")
+                else if (bemenet.ToLower() == "fájlok") // "fájlok" parancs kezelése
                     Fájlok();
-                else if (bemenet.ToLower().StartsWith("ment "))
+                else if (bemenet.ToLower().StartsWith("ment ")) // "ment" parancs kezelése
                     Mentés(bemenet.Remove(0, 5));
-                else if (bemenet.ToLower().StartsWith("betölt "))
+                else if (bemenet.ToLower().StartsWith("betölt ")) // "betölt" parancs kezelése
                     Betöltés(bemenet.Remove(0, 7));
-                else if (bemenet.ToLower() == "segíts")
+                else if (bemenet.ToLower() == "segíts") // "segíts" parancs kezelése
                     Segítség();
-                else if (bemenet.ToLower() == "kilép")
+                else if (bemenet.ToLower() == "kilép") // "kilép" parancs kezelése
                     Environment.Exit(0);
-                else
+                else // Parancs szintaktikai hibáinak kezelése
                 {
                     hiba_bevitel = true;
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -194,6 +222,7 @@ namespace HasamiShogi
                     Segítség();
                 }
 
+                // Fájlkezelési hibák kezelése
                 if (hiba_mentés)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -210,26 +239,26 @@ namespace HasamiShogi
             } while (hiba_bevitel || hiba_mentés || hiba_betöltés);
         }
 
-        static void Fájlok()
+        static void Fájlok() // "fájlok" parancs által hívott metódus
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            if (Directory.Exists("mentések"))
+            if (Directory.Exists("mentések")) // "mentések" mappa létezésének vizsgálata
             {
                 if (Directory.GetFiles("mentések", "*.txt", SearchOption.TopDirectoryOnly).Length != 0)
                 {
-                    Console.WriteLine("[FÁJLOK]:");
+                    Console.WriteLine("[FÁJLOK]:"); // "mentések" mappában található szöveges fájlok kilistázása
                     foreach (string fájlnév in Directory.GetFiles("mentések", "*.txt", SearchOption.TopDirectoryOnly))
                         Console.WriteLine(fájlnév.Substring(9).Replace(".txt", ""));
                     Console.ResetColor();
                 }
-                else
+                else // Fájlkezelési hiba kezelése
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("A \"mentések\" MAPPÁBAN NEM TALÁLHATÓ EGY BETÖLTHETŐ FÁJL SEM!");
                     Console.ResetColor();
                 }
             }
-            else
+            else // Fájlkezelési hiba kezelése
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("A \"mentések\" MAPPA NEM LÉTEZIK!");
@@ -237,16 +266,16 @@ namespace HasamiShogi
             }
         }
 
-        static void Mentés(string fájlnév)
+        static void Mentés(string fájlnév) // "ment" parancs által hívott metódus
         {
             if (!Directory.Exists("mentések"))
-                Directory.CreateDirectory("mentések");
+                Directory.CreateDirectory("mentések"); // "mentések" mappa létrehozása, amennyiben még nem létezik
 
             if (!File.Exists("mentések\\" + fájlnév + ".txt"))
             {
-                using (StreamWriter fájl = new StreamWriter("mentések\\" + fájlnév + ".txt"))
+                using (StreamWriter fájl = new StreamWriter("mentések\\" + fájlnév + ".txt")) // Adatok írása a megadott nevű fájlba
                 {
-                    for (int i = 0; i < 9; i++)
+                    for (int i = 0; i < 9; i++) // Tábla elrendezésének írása
                     {
                         for (int j = 0; j < 9; j++)
                         {
@@ -257,17 +286,17 @@ namespace HasamiShogi
                         }
                         fájl.WriteLine();
                     }
-                    fájl.WriteLine(játékosok[0].Pont + ":" + játékosok[1].Pont);
-                    fájl.WriteLine(Convert.ToInt32(másikJátékos) + 1);
+                    fájl.WriteLine(játékosok[0].Pont + ":" + játékosok[1].Pont); // Játékosok pontszámainak írása
+                    fájl.WriteLine(Convert.ToInt32(másikJátékos) + 1); // Betöltés után soron következő Játékos számának írása
                 }
             }
             else
                 hiba_mentés = true;
         }
 
-        static void Betöltés(string fájlnév)
+        static void Betöltés(string fájlnév) // "betölt" parancs által hívott metódus
         {
-            if (File.Exists("mentések\\" + fájlnév + ".txt"))
+            if (File.Exists("mentések\\" + fájlnév + ".txt")) // Betölteni kívánt fájl létezésének vizsgálata
             {
                 betöltött = true;
 
@@ -279,11 +308,11 @@ namespace HasamiShogi
                 int j1 = 0;
                 int j2 = 0;
 
-                using (StreamReader fájl = new StreamReader("mentések\\" + fájlnév + ".txt"))
+                using (StreamReader fájl = new StreamReader("mentések\\" + fájlnév + ".txt")) // Adatok olvasása a megadott nevű fájlból
                 {
                     while ((sor = fájl.ReadLine()) != null)
                     {
-                        if (sorszám < 9)
+                        if (sorszám < 9) // Tábla elrendezésének olvasása
                         {
                             for (int i = 0; i < sor.Length; i++)
                             {
@@ -306,13 +335,13 @@ namespace HasamiShogi
                             }
                             sorszám++;
                         }
-                        else if (sorszám == 10 - 1)
+                        else if (sorszám == 10 - 1) // Játékosok pontszámainak olvasása
                         {
                             játékosok[0].Pont = int.Parse(sor[0].ToString());
                             játékosok[1].Pont = int.Parse(sor[2].ToString());
                             sorszám++;
                         }
-                        else if (sorszám == 11 - 1)
+                        else if (sorszám == 11 - 1) // Aktuális játékos választása a fájl alapján
                             aktuálisJátékos = játékosok[int.Parse(sor[0].ToString()) - 1];
                     }
 
@@ -323,7 +352,7 @@ namespace HasamiShogi
                 hiba_betöltés = true;
         }
 
-        static void Feladás()
+        static void Feladás() // "felad" parancs által hívott metódus
         {
             vége = true;
             feladta = true;
@@ -332,7 +361,7 @@ namespace HasamiShogi
             Console.ResetColor();
         }
 
-        static void Segítség()
+        static void Segítség() // "segíts" parancs által hívott metódus
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("[PARANCSOK]: lép <X1 Y2> | felad | fájlok | ment <fájlnév> | betölt <fájlnév> | segíts | kilép");
