@@ -28,7 +28,7 @@ namespace HasamiShogi
 
         static void Main(string[] args)
         {
-            Console.Title = "Hasami Shogi";
+            Console.Title = "Hasami shogi";
             tábla.Rajzol();
             Segítség();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -90,7 +90,7 @@ namespace HasamiShogi
                 Console.Clear();
                 tábla.Rajzol();
 
-                if (bemenet.ToLower().StartsWith("lép"))
+                if (bemenet.ToLower().StartsWith("lép") || bemenet.ToLower().StartsWith("lep"))
                 {
                     if (bemenet.Length == 9)
                     {
@@ -175,15 +175,15 @@ namespace HasamiShogi
                 }
                 else if (bemenet.ToLower() == "felad")
                     Feladás();
-                else if (bemenet.ToLower() == "fájlok")
+                else if (bemenet.ToLower() == "fájlok" || bemenet.ToLower() == "fajlok")
                     Fájlok();
                 else if (bemenet.ToLower().StartsWith("ment "))
                     Mentés(bemenet.Remove(0, 5));
-                else if (bemenet.ToLower().StartsWith("betölt "))
+                else if (bemenet.ToLower().StartsWith("betölt ") || bemenet.ToLower().StartsWith("betolt"))
                     Betöltés(bemenet.Remove(0, 7));
-                else if (bemenet.ToLower() == "segíts")
+                else if (bemenet.ToLower() == "segíts" || bemenet.ToLower() == "segits")
                     Segítség();
-                else if (bemenet.ToLower() == "kilép")
+                else if (bemenet.ToLower() == "kilép" || bemenet.ToLower() == "kilep")
                     Environment.Exit(0);
                 else
                 {
