@@ -33,7 +33,7 @@ namespace HasamiShogi
         static void Main(string[] args)
         {
             // Tábla rajzolása, üzenetek kiírása
-            Console.Title = "Hasami Shogi";
+            Console.Title = "Hasami shogi";
             tábla.Rajzol();
             Segítség();
             Console.ForegroundColor = ConsoleColor.Green;
@@ -97,7 +97,7 @@ namespace HasamiShogi
                 Console.Clear();
                 tábla.Rajzol();
 
-                if (bemenet.ToLower().StartsWith("lép")) // "lép" parancs argumentumainak kiértékelése
+                if (bemenet.ToLower().StartsWith("lép") || bemenet.ToLower().StartsWith("lep")) // "lép" parancs argumentumainak kiértékelése
                 {
                     if (bemenet.Length == 9)
                     {
@@ -203,15 +203,15 @@ namespace HasamiShogi
                 }
                 else if (bemenet.ToLower() == "felad") // "felad" parancs kezelése
                     Feladás();
-                else if (bemenet.ToLower() == "fájlok") // "fájlok" parancs kezelése
+                else if (bemenet.ToLower() == "fájlok" || bemenet.ToLower() == "fajlok") // "fájlok" parancs kezelése
                     Fájlok();
                 else if (bemenet.ToLower().StartsWith("ment ")) // "ment" parancs kezelése
                     Mentés(bemenet.Remove(0, 5));
-                else if (bemenet.ToLower().StartsWith("betölt ")) // "betölt" parancs kezelése
+                else if (bemenet.ToLower().StartsWith("betölt ") || bemenet.ToLower().StartsWith("betolt")) // "betölt" parancs kezelése
                     Betöltés(bemenet.Remove(0, 7));
-                else if (bemenet.ToLower() == "segíts") // "segíts" parancs kezelése
+                else if (bemenet.ToLower() == "segíts" || bemenet.ToLower() == "segits") // "segíts" parancs kezelése
                     Segítség();
-                else if (bemenet.ToLower() == "kilép") // "kilép" parancs kezelése
+                else if (bemenet.ToLower() == "kilép" || bemenet.ToLower() == "kilep") // "kilép" parancs kezelése
                     Environment.Exit(0);
                 else // Parancs szintaktikai hibáinak kezelése
                 {
