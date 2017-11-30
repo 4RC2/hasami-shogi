@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace HasamiShogi
 {
-    class Játékos
+    class Játékos // A játékban részt vevő játékosokat reprezentáló, azok pontszámát és figuráit tartalmazó osztály
     {
         int csapat;
         int pont;
@@ -28,7 +28,7 @@ namespace HasamiShogi
             pont = 0;
             figurák = new Figura[9];
 
-            if (csapat == 1)
+            if (csapat == 1) // Játékos számára 1-es csapathoz tartozó Figurák létrehozása
             {
                 int j = 1;
                 for (int i = 0; i < 9; i++)
@@ -37,7 +37,7 @@ namespace HasamiShogi
                     j++;
                 }
             }
-            else if (csapat == 2)
+            else if (csapat == 2) // Játékos számára 2-es csapathoz tartozó Figurák létrehozása
             {
                 int j = 1;
                 for (int i = 0; i < 9; i++)
